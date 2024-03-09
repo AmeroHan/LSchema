@@ -1,7 +1,7 @@
 This Lua module validates values' data structures (or schema), easy to use.  
 此Lua模块用于验证值的数据结构，用法简单。
 
-Its simpleness makes documentation unnecessary. Read the code, _onegai_!  
+Its simplicity makes documentation unnecessary. Read the code, _onegai_!  
 懒得写文档了，看示例代码就行。
 
 Designed as a MediaWiki Scibunto module initially, it has no validator of userdata or thread.  
@@ -32,10 +32,10 @@ schema.Any{validators={func1, func2, ...}}
 
 -- validator的函数为(any) -> truthy | falsy，比如判断是否为非字符串：
 local function is_string(v)
-	return type(v) == 'string'
+   return type(v) == 'string'
 end
 local function is_not_empty_string(v)
-	return v ~= ''
+   return v ~= ''
 end
 local NonEmptyString = schema.Any{validators={is_string, is_not_empty_string}}
 NonEmptyString:test('只有非空字符串能通过')  --> true
@@ -96,16 +96,16 @@ schema.Table  -- table类型的值可以通过
 
 -- 示例
 local CharacterInfo = schema.Table{
-	name = schema.String{min_len=1},
-	age = schema.Number{min=0},
+   name = schema.String{min_len=1},
+   age = schema.Number{min=0},
 }
 local info1 = {
-	name = '缠流子',
-	age = '17',
+   name = '缠流子',
+   age = '17',
 }
 local info2 = {
-	name = '满舰饰真子',
-	age = 16,
+   name = '满舰饰真子',
+   age = 16,
 }
 CharacterInfo:test(info1)  --> false, '好像会说什么age应该是数字而不是字符串'
 CharacterInfo:test(info2)  --> true
@@ -115,32 +115,32 @@ CharacterInfo:test(info2)  --> true
 -- 若你的结构中包含这两个字段，请使用schema.Const('validator')或schema.Const('validators')代替。
 -- 作用对比如下：
 local function check_children_num(t)
-	return #t > 5
+   return #t > 5
 end
 local array_with_6_children = {1, 2, 3, 4, 5, 6}
 local table_with_validator_field = {
-	validator = check_children_num
+   validator = check_children_num
 }
 
 -- 这是为表格添加自定义校验：
 schema.Table{
-	validator = check_children_num
+   validator = check_children_num
 }:test(array_with_6_children)  --> true
 
 -- 而这是设定表格validator字段的类型：
 schema.Table{
-	[schema.Const('validator')] = schema.Function,
+   [schema.Const('validator')] = schema.Function,
 }:test(table_with_validator_field)  --> true
 
 
 -- 可以使用来schema作为键来匹配多个字段：
 local hanzi_number_conversion = {
-	'一', '二', '三',
-	['一'] = 1, ['二'] = 2, ['三'] = 3,
+   '一', '二', '三',
+   ['一'] = 1, ['二'] = 2, ['三'] = 3,
 }
 schema.Table{
-	[schema.String] = schema.Number,
-	[schema.Number] = schema.String,
+   [schema.String] = schema.Number,
+   [schema.Number] = schema.String,
 }:test(hanzi_number_conversion)  --> true
 -- 这个例子中，只有数字键对应的值为字符串、字符串键对应的值为数字的表才能通过测试。
 ```
