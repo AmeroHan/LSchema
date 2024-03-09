@@ -4,8 +4,8 @@ This Lua module validates values' data structures (or schema), easy to use.
 Its simplicity makes documentation unnecessary. Read the code, _onegai_!  
 懒得写文档了，看示例代码就行。
 
-Designed as a MediaWiki Scibunto module initially, it has no validator of userdata or thread.  
-由于最初是作为MediaWiki Scibunto模块设计的，所以没有userdata和thread数据类型的校验器。
+Designed as a MediaWiki Scribunto module initially, it has no validator of userdata or thread.  
+由于最初是作为MediaWiki Scribunto模块设计的，所以没有userdata和thread数据类型的校验器。
 
 ## Basic / 基础
 
