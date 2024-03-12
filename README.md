@@ -26,9 +26,9 @@ schema.Number:assert('OwO')  --> 抛出错误
 ```lua
 schema.Any  -- 任何值都能通过测试，是很随性的孩子
 
--- 约束选项有validator或validators：
+-- 约束选项有validator：
 schema.Any{validator=func}
-schema.Any{validators={func1, func2, ...}}
+schema.Any{validator={func1, func2, ...}}
 
 -- validator的函数为(any) -> truthy | falsy，比如判断是否为非字符串：
 local function is_string(v)
@@ -37,7 +37,7 @@ end
 local function is_not_empty_string(v)
    return v ~= ''
 end
-local NonEmptyString = schema.Any{validators={is_string, is_not_empty_string}}
+local NonEmptyString = schema.Any{validator={is_string, is_not_empty_string}}
 NonEmptyString:test('只有非空字符串能通过')  --> true
 -- 仅作示例，实际使用String更便捷。
 
@@ -63,7 +63,7 @@ schema.Number:test(0721)  --> true
 
 -- 约束选项：
 -- gt（大于）、lt（小于）、ge/min（大于等于）、le/max（小于等于）、ne（不等于），
--- 以及validator/validators（自定义约束）
+-- 以及validator（自定义约束）
 -- 例如：
 schema.Number{gt=0, le=100}:test(22/7)  --> true
 ```
@@ -75,7 +75,7 @@ schema.String:test('Ciallo ~')  --> true
 
 -- 约束选项：
 -- min_len（最短长度）、max_len（最长长度）、pattern（正则），
--- 以及validator/validators（自定义约束）。
+-- 以及validator（自定义约束）。
 -- 例如，Any中的例子可以改为：
 local NonEmptyString = schema.String{min_len=1}
 -- 例二：
@@ -86,7 +86,7 @@ local HttpUrl = schema.String{pattern='^https?://'}
 
 ```lua
 schema.Function:test(function() return 42 end)
--- 约束选项只有validator或validators
+-- 约束选项只有validator
 ```
 
 ## Table
@@ -111,8 +111,8 @@ CharacterInfo:test(info1)  --> false, '好像会说什么age应该是数字而�
 CharacterInfo:test(info2)  --> true
 
 
--- 'validator'和'validators'两个字段被自定义校验器占用了，
--- 若你的结构中包含这两个字段，请使用schema.Const('validator')或schema.Const('validators')代替。
+-- 'validator'字段被自定义校验器占用了，
+-- 若你的结构中包含这个字段，请使用schema.Const('validator')代替。
 -- 作用对比如下：
 local function check_children_num(t)
    return #t > 5

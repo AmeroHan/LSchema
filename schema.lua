@@ -85,7 +85,7 @@ end
 ---@param constraints table
 ---@return table?
 local function get_validators_from_constraints(constraints)
-	local inputs = constraints.validators or constraints.validator
+	local inputs = constraints.validator
 	if not inputs then return nil end
 	if type(inputs) ~= 'table' or get_mt(inputs) then
 		inputs = {inputs}
@@ -293,7 +293,7 @@ function Table_mt:__call(constraints)
 			else
 				generic[k] = v
 			end
-		elseif k ~= 'validators' and k ~= 'validator' then
+		elseif k ~= 'validator' then
 			specific[k] = v
 		end
 	end
