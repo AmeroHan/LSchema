@@ -5,8 +5,8 @@ local error = error
 local pairs = pairs
 local assert = assert
 local ipairs = ipairs
-local get_mt = getmetatable
-local set_mt = setmetatable
+local getmt = getmetatable
+local setmt = setmetatable
 
 
 local schema = {}
@@ -44,7 +44,7 @@ local function map(array, func)
 end
 
 
-local schema_mts = set_mt({}, {__mode = 'k'})  ---@type {[metatable]: true}
+local schema_mts = setmt({}, {__mode = 'k'})  ---@type {[metatable]: true}
 
 ---@param name string
 ---@param super_mt metatable?
@@ -53,7 +53,7 @@ local schema_mts = set_mt({}, {__mode = 'k'})  ---@type {[metatable]: true}
 local function reg_mt(name, super_mt, without_override)
 	local index = super_mt and super_mt.__index or {}
 	if not without_override then
-		index = set_mt({}, {__index = index})
+		index = setmt({}, {__index = index})
 	end
 
 	local mt = {
@@ -67,7 +67,7 @@ end
 ---@param v any
 ---@return string | nil
 local function get_scm_type(v)
-	local mt =  get_mt(v)
+	local mt =  getmt(v)
 	if not schema_mts[mt] then return nil end
 	return mt.__name
 end
@@ -75,7 +75,7 @@ end
 
 local function is_callable(v)
 	if type(v) == 'function' then return true end
-	local mt = get_mt(v)
+	local mt = getmt(v)
 	local call = mt and rawget(mt, '__call')
 	if not call then return false end
 	return is_callable(call)
@@ -87,7 +87,7 @@ end
 local function get_validators_from_constraints(constraints)
 	local inputs = constraints.validator
 	if not inputs then return nil end
-	if type(inputs) ~= 'table' or get_mt(inputs) then
+	if type(inputs) ~= 'table' or getmt(inputs) then
 		inputs = {inputs}
 	end
 	local validators = {}
@@ -106,15 +106,15 @@ local VALIDATORS = '__v__'
 local always_true = function() return true end
 
 local Any_mt = reg_mt('Any', nil)
-schema.Any = set_mt({
+schema.Any = setmt({
 	test = always_true,
 }, Any_mt)
 
 function Any_mt:__call(constraints)
-	return set_mt({
+	return setmt({
 		[SUPER] = self,
 		[VALIDATORS] = get_validators_from_constraints(constraints),
-	}, get_mt(self))
+	}, getmt(self))
 end
 
 Any_mt.__index._test = always_true
@@ -172,19 +172,19 @@ end
 
 
 local Nil_mt = reg_mt('Nil', Any_mt, true)
-schema.Nil = set_mt({
+schema.Nil = setmt({
 	_test = TypeChecker('nil'),
 }, Nil_mt)
 
 
 local Boolean_mt = reg_mt('Boolean', Any_mt, true)
-schema.Boolean = set_mt({
+schema.Boolean = setmt({
 	_test = TypeChecker('boolean', 'a'),
 }, Boolean_mt)
 
 
 local Number_mt = reg_mt('Number', Any_mt)
-schema.Number = set_mt({
+schema.Number = setmt({
 	_test = TypeChecker('number', 'a'),
 }, Number_mt)
 
@@ -213,7 +213,7 @@ local num_cmps = {
 }
 
 function Number_mt:__call(constraints)
-	return set_mt({
+	return setmt({
 		[SUPER] = self,
 		cmp = {
 			lt = constraints.lt,
@@ -238,12 +238,12 @@ end
 
 
 local String_mt = reg_mt('String', Any_mt)
-schema.String = set_mt({
+schema.String = setmt({
 	_test = TypeChecker('string', 'a')
 }, String_mt)
 
 function String_mt:__call(constraints)
-	return set_mt({
+	return setmt({
 		[SUPER] = self,
 		max_len = constraints.max_len,
 		min_len = constraints.min_len,
@@ -267,7 +267,7 @@ end
 
 
 local Function_mt = reg_mt('Function', Any_mt)
-schema.Function = set_mt({
+schema.Function = setmt({
 	_test = TypeChecker('function', 'a'),
 }, Function_mt)
 
@@ -275,7 +275,7 @@ Function_mt.__call = Any_mt.__call
 
 
 local Table_mt = reg_mt('Table', Any_mt)
-schema.Table = set_mt({
+schema.Table = setmt({
 	_test = TypeChecker('table', 'a')
 }, Table_mt)
 
@@ -297,7 +297,7 @@ function Table_mt:__call(constraints)
 			specific[k] = v
 		end
 	end
-	return set_mt({
+	return setmt({
 		[SUPER] = self,
 		specific = specific,
 		generic = generic,
@@ -333,7 +333,7 @@ end
 
 
 local Const_mt = reg_mt('Const', Any_mt)
-local existing_const_scms = set_mt({}, {__mode = 'kv'})
+local existing_const_scms = setmt({}, {__mode = 'kv'})
 
 --- 获得一个Const实例，以相同参数多次调用将会返回同一对象
 function schema.Const(val)
@@ -342,7 +342,7 @@ function schema.Const(val)
 	elseif existing_const_scms[val] then
 		return existing_const_scms[val]
 	end
-	local obj = set_mt({val}, Const_mt)
+	local obj = setmt({val}, Const_mt)
 	existing_const_scms[val] = obj
 	return obj
 end
@@ -371,7 +371,7 @@ function schema.Union(...)
 			union[schema.Const(sub_scm)] = true
 		end
 	end
-	return set_mt(union, Union_mt)
+	return setmt(union, Union_mt)
 end
 
 function Union_mt.__index:_test(testee)
